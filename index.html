@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trabajo Práctico Final — Visita UTRASA</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1C1C1E;--ink2:#48484A;--ink3:#8E8E93;
+  --bg:#F2F2F7;--bg2:#FFFFFF;--bg3:#F9F9FB;
+  --line:#E5E5EA;--line2:#D1D1D6;
+  --green:#1D9E75;--green-d:#0F6E56;--green-l:#E1F5EE;--green-m:#9FE0C8;
+  --blue:#2563EB;--blue-l:#EFF6FF;--blue-d:#1E40AF;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --r:14px;--rs:8px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;min-height:100vh}
+
+/* ── LOGIN SCREEN ── */
+#loginScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#0F6E56 0%,#1D9E75 50%,#2dbf8a 100%);
+  padding:1.5rem;
+}
+.login-card{
+  background:#fff;border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:420px;
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
+}
+.login-logo{
+  width:56px;height:56px;background:var(--green-l);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 1.2rem;
+}
+.login-card h1{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;text-align:center;color:var(--ink);margin-bottom:.25rem}
+.login-card p{font-size:.83rem;color:var(--ink3);text-align:center;margin-bottom:1.8rem}
+.login-label{font-size:.78rem;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:.4rem}
+.login-input{width:100%;border:1.5px solid var(--line2);border-radius:var(--rs);padding:.65rem 1rem;font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--ink);transition:border-color .18s,box-shadow .18s;background:#fff}
+.login-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.15)}
+.login-btn{width:100%;margin-top:1.2rem;padding:.75rem;background:var(--green);color:#fff;border:none;border-radius:var(--rs);font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .18s,transform .1s;letter-spacing:.5px}
+.login-btn:hover{background:var(--green-d)}
+.login-btn:active{transform:scale(.98)}
+.login-groups{margin-top:1.5rem;border-top:1px solid var(--line);padding-top:1.2rem}
+.login-groups-title{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem}
+.group-chip{display:inline-block;background:var(--green-l);color:var(--green-d);border-radius:20px;padding:.2rem .65rem;font-size:.75rem;font-weight:600;cursor:pointer;margin:.2rem;border:1px solid var(--green-m);transition:all .15s}
+.group-chip:hover{background:var(--green);color:#fff}
+.login-error{background:var(--red-l);color:var(--red);border-radius:var(--rs);padding:.5rem .85rem;font-size:.82rem;margin-top:.8rem;display:none}
+
+/* ── APP ── */
+#app{display:none}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  padding:.55rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;
+}
+.topbar-left{display:flex;align-items:center;gap:.75rem}
+.topbar-badge{background:var(--green);color:#fff;border-radius:var(--rs);padding:.28rem .75rem;font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+.topbar-group{font-size:.85rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:.4rem}
+.topbar-group span{background:var(--green-l);color:var(--green-d);border-radius:20px;padding:.15rem .6rem;font-size:.78rem;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:.6rem}
+.save-indicator{font-size:.72rem;color:var(--ink3);display:flex;align-items:center;gap:.3rem;transition:opacity .3s}
+.save-indicator.saving{color:var(--amber)}
+.save-indicator.saved{color:var(--green)}
+.btn-logout{background:none;border:1px solid var(--line2);border-radius:6px;padding:.28rem .65rem;font-size:.72rem;color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ── PROGRESS STRIP ── */
+.progress-strip{background:#fff;border-bottom:1px solid var(--line);padding:.55rem 1.2rem;display:flex;align-items:center;gap:.8rem;overflow-x:auto}
+.progress-strip::-webkit-scrollbar{display:none}
+.prog-step{display:flex;align-items:center;gap:.35rem;cursor:pointer;white-space:nowrap;padding:.28rem .6rem;border-radius:20px;transition:all .18s;font-size:.76rem;font-weight:500;color:var(--ink3);border:1px solid transparent}
+.prog-step.active{background:var(--green);color:#fff;border-color:var(--green)}
+.prog-step.done{background:var(--green-l);color:var(--green-d);border-color:var(--green-m)}
+.prog-step:hover:not(.active){background:var(--bg3);border-color:var(--line2);color:var(--ink)}
+.prog-dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.6;flex-shrink:0}
+.prog-step.done .prog-dot{opacity:1}
+.prog-bar-wrap{padding:.3rem 1.2rem;background:#fff;border-bottom:1px solid var(--line)}
+.prog-bar-track{height:4px;background:var(--line);border-radius:20px}
+.prog-bar-fill{height:4px;background:linear-gradient(90deg,var(--green-d),var(--green));border-radius:20px;transition:width .5s ease}
+
+/* ── MAIN CONTENT ── */
+.main{max-width:760px;margin:0 auto;padding:1.6rem 1.2rem 5rem}
+
+/* ── SECTION HEADER ── */
+.sec-header{margin-bottom:1.4rem}
+.sec-eyebrow{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--green);margin-bottom:.3rem}
+.sec-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--ink);line-height:1.2}
+.sec-desc{font-size:.85rem;color:var(--ink2);margin-top:.4rem;line-height:1.55}
+
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:1.2rem 1.3rem;margin-bottom:1rem;box-shadow:var(--sh)}
+.card-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1.8px;color:var(--ink3);margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+.card-label.green{color:var(--green-d)}
+.card-label.blue{color:var(--blue-d)}
+.card-label.purple{color:var(--purple)}
+.card-label.amber{color:var(--amber)}
+
+/* ── FIELDS ── */
+.fl{display:block;font-size:.78rem;font-weight:600;color:var(--ink2);margin-bottom:.3rem;margin-top:.8rem}
+textarea,input[type=text]{
+  width:100%;border:1.5px solid var(--line2);border-radius:var(--rs);
+  padding:.6rem .85rem;font-family:'DM Sans',sans-serif;font-size:.88rem;
+  color:var(--ink);background:var(--bg3);transition:border-color .18s,box-shadow .18s;line-height:1.55;resize:vertical
+}
+textarea{min-height:88px}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.12);background:#fff}
+input[type=checkbox]{accent-color:var(--green);width:16px;height:16px;flex-shrink:0;cursor:pointer}
+input[type=radio]{accent-color:var(--green);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;border-radius:var(--rs);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{background:var(--bg3);padding:.55rem .9rem;text-align:left;font-size:.68rem;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:1.2px;border-bottom:1px solid var(--line)}
+tbody td{padding:.45rem .9rem;border-top:1px solid var(--line);vertical-align:top}
+tbody td:first-child{font-weight:600;color:var(--ink2);background:var(--bg3);white-space:nowrap;font-size:.82rem;width:28%}
+tbody td textarea{min-height:56px;border:none;background:transparent;padding:.1rem 0;font-size:.85rem;resize:none;box-shadow:none!important;outline:none!important}
+
+/* ── CHECKLIST ── */
+.cl-item{display:flex;align-items:flex-start;gap:.65rem;padding:.52rem .3rem;border-bottom:1px solid var(--line);cursor:pointer}
+.cl-item:last-child{border-bottom:none}
+.cl-item label{cursor:pointer;font-size:.88rem;color:var(--ink);line-height:1.45}
+
+/* ── IMG UPLOAD ── */
+.img-zone{border:2px dashed var(--line2);border-radius:var(--rs);padding:1.1rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg3);position:relative;margin-top:.6rem}
+.img-zone:hover{border-color:var(--green);background:var(--green-l)}
+.img-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-zone-ico{font-size:1.6rem;margin-bottom:.2rem}
+.img-zone p{font-size:.78rem;color:var(--ink3)}
+.img-zone span{font-size:.72rem;color:var(--green);font-weight:600}
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.5rem;margin-top:.6rem}
+.img-thumb{border-radius:var(--rs);overflow:hidden;aspect-ratio:1;background:var(--bg3);border:1px solid var(--line);position:relative}
+.img-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.img-del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;line-height:1}
+.img-del:hover{background:rgba(180,0,0,.8)}
+
+/* ── TIPS ── */
+.tip{border-radius:var(--rs);padding:.65rem 1rem;margin:.65rem 0;font-size:.82rem;line-height:1.5;display:flex;align-items:flex-start;gap:.5rem}
+.tip-ico{flex-shrink:0;margin-top:.05rem}
+.tip.green{background:var(--green-l);color:var(--green-d);border-left:3px solid var(--green)}
+.tip.blue{background:var(--blue-l);color:var(--blue-d);border-left:3px solid var(--blue)}
+.tip.amber{background:var(--amber-l);color:var(--amber);border-left:3px solid var(--amber)}
+.tip.purple{background:var(--purple-l);color:var(--purple);border-left:3px solid var(--purple)}
+
+/* ── PROMPT BOX ── */
+.prompt-box{background:var(--bg3);border:1px solid var(--line2);border-radius:var(--rs);padding:.9rem 1rem;font-size:.82rem;font-family:monospace;line-height:1.65;color:#444;margin:.5rem 0;position:relative}
+.copy-btn{display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:1px solid var(--line2);border-radius:6px;padding:.3rem .7rem;font-size:.72rem;cursor:pointer;color:var(--ink3);font-family:'DM Sans',sans-serif;margin-top:.5rem;transition:all .18s}
+.copy-btn:hover{border-color:var(--green);color:var(--green)}
+
+/* ── ROLES ── */
+.roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+@media(max-width:520px){.roles-grid{grid-template-columns:1fr}}
+.role-card{background:var(--bg3);border:1px solid var(--line);border-radius:var(--rs);padding:.85rem 1rem}
+.role-name{font-size:.82rem;font-weight:700;color:var(--green-d);margin-bottom:.18rem}
+.role-desc{font-size:.74rem;color:var(--ink3);line-height:1.45;margin-bottom:.5rem}
+
+/* ── RADIO ── */
+.radio-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin:.45rem 0 .8rem}
+.radio-opt{display:flex;align-items:center;gap:.45rem;padding:.4rem .7rem;border-radius:var(--rs);border:1.5px solid var(--line);background:var(--bg3);cursor:pointer;font-size:.85rem;transition:all .15s}
+.radio-opt:hover{border-color:var(--green);background:var(--green-l)}
+.radio-opt input:checked~span{color:var(--green-d);font-weight:600}
+
+/* ── Q BLOCK ── */
+.q-block{margin-bottom:.8rem}
+.q-num{width:22px;height:22px;border-radius:50%;font-size:.7rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:.4rem;vertical-align:middle;flex-shrink:0}
+.qn-blue{background:var(--blue-l);color:var(--blue-d)}
+.qn-purple{background:var(--purple-l);color:var(--purple)}
+.qn-green{background:var(--green-l);color:var(--green-d)}
+.qn-amber{background:var(--amber-l);color:var(--amber)}
+
+/* ── MISION ── */
+.mision-item{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--line)}
+.mision-item:last-child{border-bottom:none}
+.mision-ico{width:34px;height:34px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
+.mision-label{font-size:.85rem;font-weight:600;margin-bottom:.3rem;color:var(--ink)}
+
+/* ── RUBRICA ── */
+.rub-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--line);font-size:.82rem}
+.rub-row:last-child{border-bottom:none}
+.rub-cell{padding:.6rem .8rem;border-right:1px solid var(--line)}
+.rub-cell:last-child{border-right:none}
+.rub-head{background:var(--green);color:#fff;font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.8px;padding:.55rem .8rem;border-right:1px solid rgba(255,255,255,.2)}
+.rub-head:first-child{border-radius:var(--rs) 0 0 0}
+.rub-head:last-child{border-radius:0 var(--rs) 0 0;border-right:none}
+.badge-g{background:var(--green-l);color:var(--green-d);border-radius:4px;padding:.15rem .45rem;font-size:.72rem;font-weight:600;display:inline-block}
+.badge-a{background:var(--amber-l);color:var(--amber);border-radius:4px;padding:.15rem .45rem;font-size:.72rem;font-weight:600;display:inline-block}
+.badge-r{background:var(--red-l);color:var(--red);border-radius:4px;padding:.15rem .45rem;font-size:.72rem;font-weight:600;display:inline-block}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:.7rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem;z-index:90}
+.btn-prev{display:flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:var(--rs);border:1.5px solid var(--line2);background:#fff;font-family:'DM Sans',sans-serif;font-size:.84rem;cursor:pointer;color:var(--ink2);transition:all .15s;font-weight:500}
+.btn-prev:hover{background:var(--bg3);border-color:var(--ink3)}
+.btn-prev:disabled{opacity:.35;cursor:default}
+.btn-next{display:flex;align-items:center;gap:.4rem;padding:.55rem 1.4rem;border-radius:var(--rs);border:none;background:var(--green);color:#fff;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .18s;box-shadow:0 2px 10px rgba(29,158,117,.3)}
+.btn-next:hover{background:var(--green-d)}
+.btn-next:disabled{opacity:.4;cursor:default}
+.step-counter{font-size:.78rem;color:var(--ink3);font-weight:500}
+
+/* ── FINAL ── */
+.final-banner{background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;border-radius:var(--r);padding:1.8rem;text-align:center;margin-bottom:1rem;box-shadow:var(--sh2)}
+.final-banner h3{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:.35rem}
+.final-banner p{font-size:.84rem;opacity:.85}
+.delivery-item{display:flex;align-items:center;gap:.6rem;padding:.42rem 0;font-size:.84rem;color:var(--green-d)}
+.delivery-item::before{content:"✓";font-weight:700;color:var(--green)}
+
+/* ── ETAPAS ── */
+.etapa{display:none;animation:fadeUp .25s ease}
+.etapa.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── PILLS ── */
+.pill-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.6rem 0}
+.pill{border-radius:var(--rs);padding:.5rem .85rem;font-size:.78rem;font-weight:600}
+.pill.blue{background:var(--blue-l);color:var(--blue-d)}
+.pill.green{background:#EAF3DE;color:#3B6D11}
+
+/* ── SECTION DIVIDER ── */
+.sdiv{height:1px;background:var(--line);margin:1.2rem 0}
+
+/* ── RESPONSIVE ── */
+@media(max-width:480px){
+  .rub-row{grid-template-columns:1fr 1fr;font-size:.75rem}
+  .rub-row .rub-cell:nth-child(1),.rub-row .rub-cell:nth-child(2){border-bottom:1px solid var(--line)}
+  .rub-head{font-size:.65rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🏭</div>
+    <h1>Visita Técnica UTRASA</h1>
+    <p>Trabajo Práctico Final · Educación Tecnológica · 2° Año</p>
+
+    <label class="login-label" for="groupName">Nombre del grupo</label>
+    <input class="login-input" type="text" id="groupName" placeholder="Ej: Grupo Tigres" autocomplete="off" maxlength="40">
+
+    <label class="login-label" for="member1" style="margin-top:1rem">Integrante 1 (líder)</label>
+    <input class="login-input" type="text" id="member1" placeholder="Nombre y apellido" autocomplete="off">
+
+    <label class="login-label" for="member2" style="margin-top:.6rem">Integrante 2</label>
+    <input class="login-input" type="text" id="member2" placeholder="Nombre y apellido" autocomplete="off">
+
+    <label class="login-label" for="member3" style="margin-top:.6rem">Integrante 3</label>
+    <input class="login-input" type="text" id="member3" placeholder="Nombre y apellido (opcional)" autocomplete="off">
+
+    <label class="login-label" for="member4" style="margin-top:.6rem">Integrante 4</label>
+    <input class="login-input" type="text" id="member4" placeholder="Nombre y apellido (opcional)" autocomplete="off">
+
+    <button class="login-btn" onclick="login()">Ingresar a la actividad →</button>
+    <div class="login-error" id="loginErr">⚠️ Ingresá el nombre del grupo y al menos el Integrante 1.</div>
+
+    <div class="login-groups" id="savedGroupsSection" style="display:none">
+      <div class="login-groups-title">💾 Grupos con progreso guardado</div>
+      <div id="savedGroupsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP
+══════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-badge">UTRASA</div>
+      <div class="topbar-group">Grupo: <span id="topGroupName">—</span></div>
+    </div>
+    <div class="topbar-right">
+      <div class="save-indicator" id="saveInd">💾 Guardado</div>
+      <button class="btn-logout" onclick="logout()">Cambiar grupo</button>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-strip" id="progStrip"></div>
+  <div class="prog-bar-wrap">
+    <div class="prog-bar-track"><div class="prog-bar-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainContent">
+
+    <!-- ── ETAPA 0: ROLES ── -->
+    <div class="etapa active" id="et0">
+      <div class="sec-header">
+        <div class="sec-eyebrow">Antes de comenzar</div>
+        <div class="sec-title">Contrato de Roles del Equipo</div>
+        <div class="sec-desc">Asignen un rol a cada integrante. Estas responsabilidades guían el trabajo durante toda la actividad.</div>
+      </div>
+      <div class="card">
+        <div class="card-label green">🏭 Producto a analizar</div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+          <span style="background:var(--green-l);color:var(--green-d);border-radius:20px;padding:.2rem .75rem;font-size:.78rem;font-weight:600;border:1px solid var(--green-m)">👟 Calzado deportivo industrial</span>
+          <span style="background:var(--green-l);color:var(--green-d);border-radius:20px;padding:.2rem .75rem;font-size:.78rem;font-weight:600;border:1px solid var(--green-m)">📦 Silletas inyectadas</span>
+        </div>
+        <div class="card-label">👥 Roles del equipo</div>
+        <div class="roles-grid">
+          <div class="role-card">
+            <div class="role-name">🔧 Director/a de Producción</div>
+            <div class="role-desc">Coordina el análisis del proceso y supervisa el diagrama de flujo.</div>
+            <label class="fl">Integrante asignado</label>
+            <input type="text" data-key="rol_director" placeholder="Nombre del integrante">
+          </div>
+          <div class="role-card">
+            <div class="role-name">📦 Gestor/a de Recursos</div>
+            <div class="role-desc">Identifica materias primas, energía, capital e información tecnológica.</div>
+            <label class="fl">Integrante asignado</label>
+            <input type="text" data-key="rol_gestor" placeholder="Nombre del integrante">
+          </div>
+          <div class="role-card">
+            <div class="role-name">🤖 Especialista en IA</div>
+            <div class="role-desc">Formula prompts, analiza respuestas y mejora el cuestionario técnico.</div>
+            <label class="fl">Integrante asignado</label>
+            <input type="text" data-key="rol_ia" placeholder="Nombre del integrante">
+          </div>
+          <div class="role-card">
+            <div class="role-name">✅ Responsable de Calidad</div>
+            <div class="role-desc">Revisa redacción, controla la rúbrica y entrega el trabajo en Classroom.</div>
+            <label class="fl">Integrante asignado</label>
+            <input type="text" data-key="rol_calidad" placeholder="Nombre del integrante">
+          </div>
+        </div>
+        <div class="tip green" style="margin-top:1rem">
+          <span class="tip-ico">💡</span>
+          <span>Acuerdo de equipo: respetar las funciones asignadas, escuchar todas las ideas y resolver desacuerdos por consenso.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 1: INVESTIGACIÓN ── -->
+    <div class="etapa" id="et1">
+      <div class="sec-header">
+        <div class="sec-eyebrow">Etapa 1</div>
+        <div class="sec-title">Investigación Previa y Análisis Tecnológico</div>
+        <div class="sec-desc">Registren lo que observaron y aprendieron en la visita a la planta de UTRASA.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label green">A · Recursos Productivos observados</div>
+        <p style="font-size:.83rem;color:var(--ink2);margin-bottom:.8rem">Completen según lo que registraron durante el recorrido por la fábrica.</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Recurso</th><th>Lo que observaron en UTRASA</th></tr></thead>
+            <tbody>
+              <tr><td>🧵 Materia Prima</td><td><textarea data-key="rec_materia" placeholder="¿Qué materiales vieron ingresar o usarse? (cueros, gomas, telas, adhesivos...)"></textarea></td></tr>
+              <tr><td>⚡ Energía</td><td><textarea data-key="rec_energia" placeholder="¿Qué tipo de energía utilizaban? (eléctrica, neumática, térmica...)"></textarea></td></tr>
+              <tr><td>💡 Información</td><td><textarea data-key="rec_info" placeholder="¿Quién diseña los modelos? ¿Cómo llegan los moldes o diseños a la planta?"></textarea></td></tr>
+              <tr><td>🏭 Capital</td><td><textarea data-key="rec_capital" placeholder="¿Qué máquinas e infraestructura observaron?"></textarea></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:1rem">
+          <div class="card-label">📸 Fotografías de recursos / insumos</div>
+          <div class="img-zone">
+            <div class="img-zone-ico">📷</div>
+            <p>Hacé clic o arrastrá imágenes aquí</p>
+            <span>JPG, PNG</span>
+            <input type="file" accept="image/*" multiple onchange="addImgs('ig1',this)">
+          </div>
+          <div class="img-grid" id="ig1"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label blue">B · Producción Industrial y Trabajo Humano</div>
+        <div class="tip blue">
+          <span class="tip-ico">🔍</span>
+          <span>Describí cómo conviven la maquinaria y las personas dentro de la planta. ¿Qué etapas son manuales? ¿Cuáles son automáticas?</span>
+        </div>
+        <label class="fl">Descripción de lo observado (mínimo 1 párrafo)</label>
+        <textarea data-key="trabajo_humano" placeholder="Describí lo que vieron: costura, ensamblaje, control de calidad, operadores, máquinas automáticas..." style="min-height:120px"></textarea>
+        <div style="margin-top:1rem">
+          <div class="card-label">📸 Fotos: trabajo manual y mecanizado</div>
+          <div class="img-zone">
+            <div class="img-zone-ico">📷</div>
+            <p>Al menos 1 imagen comparativa</p>
+            <input type="file" accept="image/*" multiple onchange="addImgs('ig2',this)">
+          </div>
+          <div class="img-grid" id="ig2"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label" style="color:#3B6D11">🌱 C · Sustentabilidad y Cooperativismo</div>
+        <div class="tip green">
+          <span class="tip-ico">♻️</span>
+          <span>¿Qué prácticas sustentables observaron? Ejemplos: reciclaje, reutilización de materiales, gestión de residuos, eficiencia energética, cuidado del medioambiente.</span>
+        </div>
+        <label class="fl">¿Qué acciones de sustentabilidad identificaron en UTRASA?</label>
+        <textarea data-key="sustentabilidad" placeholder="Describí las prácticas de sustentabilidad que observaron durante la visita..." style="min-height:100px"></textarea>
+        <div style="margin-top:1rem">
+          <div class="card-label">📸 Imágenes de sustentabilidad y trabajo cooperativo</div>
+          <div class="img-zone">
+            <div class="img-zone-ico">📷</div>
+            <p>1 sustentabilidad + 1 trabajo cooperativo</p>
+            <input type="file" accept="image/*" multiple onchange="addImgs('ig3',this)">
+          </div>
+          <div class="img-grid" id="ig3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 2: DIAGRAMA ── -->
+    <div class="etapa" id="et2">
+      <div class="sec-header">
+        <div class="sec-eyebrow">Etapa 2</div>
+        <div class="sec-title">Diagrama del Proceso Productivo</div>
+        <div class="sec-desc">Elaboren el diagrama en diagrams.net basándose en lo que observaron en la visita.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">🎨 Referencia de colores</div>
+        <div class="pill-row">
+          <div class="pill blue">🔵 Azul — predominio de maquinaria</div>
+          <div class="pill green">🟢 Verde — mayor intervención humana</div>
+        </div>
+        <a href="https://app.diagrams.net" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--green);text-decoration:none;font-weight:600;background:var(--green-l);padding:.35rem .85rem;border-radius:20px;border:1px solid var(--green-m)">🔗 Abrir diagrams.net</a>
+
+        <div class="sdiv"></div>
+        <div class="card-label">✅ Etapas del diagrama — tildá las que incluyeron</div>
+        <div class="cl-item"><input type="checkbox" data-key="diag_recepcion" onchange="saveAll()"><label>Recepción de insumos</label></div>
+        <div class="cl-item"><input type="checkbox" data-key="diag_corte" onchange="saveAll()"><label>Corte de piezas</label></div>
+        <div class="cl-item"><input type="checkbox" data-key="diag_aparado" onchange="saveAll()"><label>Aparado — costura / unión de piezas</label></div>
+        <div class="cl-item"><input type="checkbox" data-key="diag_inyeccion" onchange="saveAll()"><label>Inyección o pegado de suela</label></div>
+        <div class="cl-item"><input type="checkbox" data-key="diag_ensamblaje" onchange="saveAll()"><label>Ensamblaje</label></div>
+        <div class="cl-item"><input type="checkbox" data-key="diag_calidad" onchange="saveAll()"><label>Control de calidad</label></div>
+        <div class="cl-item"><input type="checkbox" data-key="diag_empaque" onchange="saveAll()"><label>Empaque</label></div>
+        <div class="cl-item"><input type="checkbox" data-key="diag_distribucion" onchange="saveAll()"><label>Distribución</label></div>
+
+        <div class="sdiv"></div>
+        <label class="fl">Notas sobre el diagrama (pasos adicionales observados, decisiones de diseño)</label>
+        <textarea data-key="diag_notas" placeholder="¿Agregaron algún paso propio? ¿Qué fue lo más difícil de representar?"></textarea>
+
+        <div style="margin-top:1rem">
+          <div class="card-label">📸 Captura del diagrama terminado <span style="color:var(--green)">(obligatorio)</span></div>
+          <div class="img-zone">
+            <div class="img-zone-ico">🖼️</div>
+            <p>Subí la captura de pantalla del diagrama</p>
+            <span>PNG, JPG</span>
+            <input type="file" accept="image/*" multiple onchange="addImgs('ig4',this)">
+          </div>
+          <div class="img-grid" id="ig4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 3: IA ── -->
+    <div class="etapa" id="et3">
+      <div class="sec-header">
+        <div class="sec-eyebrow">Etapa 3</div>
+        <div class="sec-title">Uso de IA como Consultor Tecnológico</div>
+        <div class="sec-desc">Lidera esta etapa el Especialista en IA. Ejecuten el prompt y analicen críticamente las respuestas.</div>
+      </div>
+      <div class="card">
+        <div class="card-label purple">🤖 Prompt obligatorio</div>
+        <p style="font-size:.82rem;color:var(--ink2);margin-bottom:.5rem">Ejecutalo en <strong>Gemini</strong> o <strong>ChatGPT</strong>:</p>
+        <div class="prompt-box" id="promptTxt">"Actúa como un ingeniero industrial experto en manufactura de calzado deportivo a gran escala. Vamos a realizar una visita escolar a una fábrica cooperativa con más de 200 operarios (UTRASA Corrientes). Genera 5 preguntas técnicas y organizacionales importantes para comprender el flujo productivo, la gestión de desperdicios y el mantenimiento de maquinaria industrial."</div>
+        <button class="copy-btn" onclick="copyPrompt()">📋 Copiar prompt</button>
+
+        <label class="fl" style="margin-top:1rem">Respuesta generada por la IA (pegala aquí completa)</label>
+        <textarea data-key="ia_respuesta" placeholder="Pegá aquí la respuesta completa de la IA..." style="min-height:150px"></textarea>
+      </div>
+
+      <div class="card">
+        <div class="card-label">🔍 Análisis crítico — 3 preguntas seleccionadas</div>
+        <div class="tip amber">
+          <span class="tip-ico">⚠️</span>
+          <span><strong>No copien automáticamente.</strong> Seleccionen las preguntas más claras, realistas y útiles. Justifiquen cada elección.</span>
+        </div>
+        <div class="q-block" style="margin-bottom:1rem">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-purple">1</span><span style="font-size:.8rem;color:var(--ink3);font-weight:600">Pregunta elegida</span></div>
+          <input type="text" data-key="ia_q1" placeholder="Escribí la pregunta seleccionada">
+          <label class="fl">¿Por qué la eligieron?</label>
+          <textarea data-key="ia_q1_why" style="min-height:64px" placeholder="Justificación del grupo..."></textarea>
+        </div>
+        <div class="q-block" style="margin-bottom:1rem">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-purple">2</span><span style="font-size:.8rem;color:var(--ink3);font-weight:600">Pregunta elegida</span></div>
+          <input type="text" data-key="ia_q2" placeholder="Escribí la pregunta seleccionada">
+          <label class="fl">¿Por qué la eligieron?</label>
+          <textarea data-key="ia_q2_why" style="min-height:64px" placeholder="Justificación del grupo..."></textarea>
+        </div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-purple">3</span><span style="font-size:.8rem;color:var(--ink3);font-weight:600">Pregunta elegida</span></div>
+          <input type="text" data-key="ia_q3" placeholder="Escribí la pregunta seleccionada">
+          <label class="fl">¿Por qué la eligieron?</label>
+          <textarea data-key="ia_q3_why" style="min-height:64px" placeholder="Justificación del grupo..."></textarea>
+        </div>
+
+        <label class="fl" style="margin-top:1rem">Conclusión grupal: ¿qué aprendieron usando la IA como herramienta?</label>
+        <textarea data-key="ia_conclusion" placeholder="¿Fue útil? ¿Qué limitaciones encontraron? ¿Qué cambiarían del prompt?" style="min-height:80px"></textarea>
+
+        <div style="margin-top:1rem">
+          <div class="card-label">📸 Captura de la interacción con la IA</div>
+          <div class="img-zone">
+            <div class="img-zone-ico">🖼️</div>
+            <p>Subí la captura de pantalla de la conversación</p>
+            <input type="file" accept="image/*" onchange="addImgs('ig5',this)">
+          </div>
+          <div class="img-grid" id="ig5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 4: CUESTIONARIO ── -->
+    <div class="etapa" id="et4">
+      <div class="sec-header">
+        <div class="sec-eyebrow">Etapa 4</div>
+        <div class="sec-title">Cuestionario Final para la Visita</div>
+        <div class="sec-desc">Registren las preguntas que realizaron en la planta y las respuestas que obtuvieron. Mínimo 8 preguntas.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label blue">Bloque A — Recursos y Cadena Tecnológica</div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-blue">A1</span></div>
+          <input type="text" data-key="cq_a1" placeholder="Pregunta realizada en la visita">
+          <label class="fl">Respuesta obtenida</label>
+          <textarea data-key="cq_a1r" style="min-height:60px" placeholder="¿Qué respondieron en la fábrica?"></textarea>
+        </div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-blue">A2</span></div>
+          <input type="text" data-key="cq_a2" placeholder="Pregunta realizada en la visita">
+          <label class="fl">Respuesta obtenida</label>
+          <textarea data-key="cq_a2r" style="min-height:60px" placeholder="¿Qué respondieron en la fábrica?"></textarea>
+        </div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-blue">A3</span></div>
+          <input type="text" data-key="cq_a3" placeholder="Pregunta realizada en la visita">
+          <label class="fl">Respuesta obtenida</label>
+          <textarea data-key="cq_a3r" style="min-height:60px" placeholder="¿Qué respondieron en la fábrica?"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label purple">Bloque B — Modelo Socio-Productivo</div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-purple">B1</span></div>
+          <input type="text" data-key="cq_b1" placeholder="Pregunta realizada en la visita">
+          <label class="fl">Respuesta obtenida</label>
+          <textarea data-key="cq_b1r" style="min-height:60px" placeholder="¿Qué respondieron en la fábrica?"></textarea>
+        </div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-purple">B2</span></div>
+          <input type="text" data-key="cq_b2" placeholder="Pregunta realizada en la visita">
+          <label class="fl">Respuesta obtenida</label>
+          <textarea data-key="cq_b2r" style="min-height:60px" placeholder="¿Qué respondieron en la fábrica?"></textarea>
+        </div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-purple">B3</span></div>
+          <input type="text" data-key="cq_b3" placeholder="Pregunta realizada en la visita">
+          <label class="fl">Respuesta obtenida</label>
+          <textarea data-key="cq_b3r" style="min-height:60px" placeholder="¿Qué respondieron en la fábrica?"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label green">Bloque C — Sustentabilidad y Futuro</div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-green">C1</span></div>
+          <input type="text" data-key="cq_c1" placeholder="Pregunta realizada en la visita">
+          <label class="fl">Respuesta obtenida</label>
+          <textarea data-key="cq_c1r" style="min-height:60px" placeholder="¿Qué respondieron en la fábrica?"></textarea>
+        </div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-green">C2</span></div>
+          <input type="text" data-key="cq_c2" placeholder="Pregunta realizada en la visita">
+          <label class="fl">Respuesta obtenida</label>
+          <textarea data-key="cq_c2r" style="min-height:60px" placeholder="¿Qué respondieron en la fábrica?"></textarea>
+        </div>
+        <div class="q-block">
+          <div style="margin-bottom:.3rem"><span class="q-num qn-green">C3</span></div>
+          <input type="text" data-key="cq_c3" placeholder="Pregunta realizada en la visita">
+          <label class="fl">Respuesta obtenida</label>
+          <textarea data-key="cq_c3r" style="min-height:60px" placeholder="¿Qué respondieron en la fábrica?"></textarea>
+        </div>
+        <div class="tip green" style="margin-top:.8rem">
+          <span class="tip-ico">💡</span>
+          <span>El cuestionario debe tener al menos 8 preguntas + respuestas en total entre los tres bloques.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 5: VISITA ── -->
+    <div class="etapa" id="et5">
+      <div class="sec-header">
+        <div class="sec-eyebrow">Etapa 5</div>
+        <div class="sec-title">Registro de Observación en Planta</div>
+        <div class="sec-desc">Completen con lo que registraron durante el recorrido por la fábrica.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">📋 Checklist de observación</div>
+        <div class="mision-item">
+          <div class="mision-ico" style="background:var(--blue-l)">🤲</div>
+          <div style="flex:1">
+            <div class="mision-label">Etapa con gran intervención humana</div>
+            <textarea data-key="obs_humana" style="min-height:70px" placeholder="¿Qué sector o tarea vieron? ¿Qué hacían los trabajadores?"></textarea>
+          </div>
+        </div>
+        <div class="mision-item">
+          <div class="mision-ico" style="background:var(--green-l)">🤖</div>
+          <div style="flex:1">
+            <div class="mision-label">Etapa altamente mecanizada</div>
+            <textarea data-key="obs_maquina" style="min-height:70px" placeholder="¿Qué máquina o proceso automático observaron? ¿Qué hacía?"></textarea>
+          </div>
+        </div>
+        <div class="mision-item">
+          <div class="mision-ico" style="background:var(--amber-l)">🦺</div>
+          <div style="flex:1">
+            <div class="mision-label">Medida de seguridad industrial</div>
+            <textarea data-key="obs_seguridad" style="min-height:70px" placeholder="Equipos de protección, señalización, procedimientos observados..."></textarea>
+          </div>
+        </div>
+        <div class="mision-item">
+          <div class="mision-ico" style="background:var(--red-l)">🗑️</div>
+          <div style="flex:1">
+            <div class="mision-label">Posible desperdicio del proceso</div>
+            <textarea data-key="obs_desperdicio" style="min-height:70px" placeholder="¿Qué residuos o desperdicios generan? ¿Cómo los manejan?"></textarea>
+          </div>
+        </div>
+        <div class="mision-item">
+          <div class="mision-ico" style="background:#EAF3DE">🌱</div>
+          <div style="flex:1">
+            <div class="mision-label">Acción sustentable observada</div>
+            <textarea data-key="obs_sustentable" style="min-height:70px" placeholder="¿Identificaron reciclaje, eficiencia energética u otra práctica?"></textarea>
+          </div>
+        </div>
+        <div class="mision-item">
+          <div class="mision-ico" style="background:var(--purple-l)">🤝</div>
+          <div style="flex:1">
+            <div class="mision-label">Decisión organizativa cooperativa</div>
+            <textarea data-key="obs_cooperativa" style="min-height:70px" placeholder="¿Qué es diferente a una empresa tradicional? ¿Cómo se organiza la cooperativa?"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">📸 Registro visual de la visita</div>
+        <div style="display:grid;gap:.4rem;margin-bottom:.8rem">
+          <div class="tip green"><span class="tip-ico">📷</span><span><strong>3</strong> fotografías técnicas autorizadas por la fábrica</span></div>
+          <div class="tip blue"><span class="tip-ico">🤳</span><span><strong>1</strong> fotografía grupal en planta</span></div>
+          <div class="tip purple"><span class="tip-ico">🎬</span><span><strong>1</strong> video corto de una etapa del proceso</span></div>
+          <div class="tip amber"><span class="tip-ico">✏️</span><span><strong>1</strong> boceto de una máquina o sector</span></div>
+        </div>
+        <div class="img-zone">
+          <div class="img-zone-ico">📷</div>
+          <p>Subí todas las fotos de la visita (al menos 4)</p>
+          <span>JPG, PNG</span>
+          <input type="file" accept="image/*" multiple onchange="addImgs('ig6',this)">
+        </div>
+        <div class="img-grid" id="ig6"></div>
+        <label class="fl" style="margin-top:1rem">Descripción del boceto (o subí una foto de él)</label>
+        <textarea data-key="obs_boceto" placeholder="Describí la máquina o sector que dibujaste..." style="min-height:80px"></textarea>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 6: REFLEXIÓN ── -->
+    <div class="etapa" id="et6">
+      <div class="sec-header">
+        <div class="sec-eyebrow">Etapa 6 · Cierre</div>
+        <div class="sec-title">Reflexión Final</div>
+        <div class="sec-desc">"Lo que esperábamos vs. lo que encontramos"</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">📊 Tabla comparativa</div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Hipótesis previa</th><th>Lo observado en planta</th><th>¿Qué aprendimos?</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><textarea data-key="ref_hip1" placeholder="¿Qué esperaban?"></textarea></td>
+                <td><textarea data-key="ref_obs1" placeholder="¿Qué encontraron?"></textarea></td>
+                <td><textarea data-key="ref_apr1" placeholder="Aprendizaje..."></textarea></td>
+              </tr>
+              <tr>
+                <td><textarea data-key="ref_hip2" placeholder="Hipótesis 2..."></textarea></td>
+                <td><textarea data-key="ref_obs2" placeholder="Observado..."></textarea></td>
+                <td><textarea data-key="ref_apr2" placeholder="Aprendizaje..."></textarea></td>
+              </tr>
+              <tr>
+                <td><textarea data-key="ref_hip3" placeholder="Hipótesis 3..."></textarea></td>
+                <td><textarea data-key="ref_obs3" placeholder="Observado..."></textarea></td>
+                <td><textarea data-key="ref_apr3" placeholder="Aprendizaje..."></textarea></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">✍️ Conclusión final del equipo</div>
+        <label class="fl">¿Qué fue lo más interesante del sistema productivo de UTRASA?</label>
+        <textarea data-key="con_interesante" placeholder="Respondan aquí..." style="min-height:90px"></textarea>
+        <label class="fl">¿Qué los sorprendió más?</label>
+        <div class="radio-grid">
+          <label class="radio-opt"><input type="radio" name="sorpresa" value="tecnologia" data-key="con_sorpresa" onchange="saveRadio(this)"><span>La tecnología</span></label>
+          <label class="radio-opt"><input type="radio" name="sorpresa" value="organizacion" data-key="con_sorpresa" onchange="saveRadio(this)"><span>La organización</span></label>
+          <label class="radio-opt"><input type="radio" name="sorpresa" value="humano" data-key="con_sorpresa" onchange="saveRadio(this)"><span>El trabajo humano</span></label>
+          <label class="radio-opt"><input type="radio" name="sorpresa" value="cooperativo" data-key="con_sorpresa" onchange="saveRadio(this)"><span>El modelo cooperativo</span></label>
+        </div>
+        <label class="fl">¿Cómo influye UTRASA en la economía regional?</label>
+        <textarea data-key="con_economia" placeholder="Reflexión del grupo sobre el impacto económico y social..." style="min-height:90px"></textarea>
+        <label class="fl">¿Qué cambiarían o mejorarían del sistema productivo que observaron?</label>
+        <textarea data-key="con_mejora" placeholder="Aporten ideas propias basadas en lo que vieron..." style="min-height:90px"></textarea>
+      </div>
+    </div>
+
+    <!-- ── ETAPA 7: RÚBRICA ── -->
+    <div class="etapa" id="et7">
+      <div class="final-banner">
+        <h3>🏆 Criterios de valoración</h3>
+        <p>Revisá que el trabajo cumpla con todos los criterios antes de entregarlo en Classroom.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Autoevaluación del equipo</div>
+        <div class="tip green"><span class="tip-ico">💡</span><span>Marquen con honestidad en qué nivel se encuentra el trabajo antes de entregar.</span></div>
+
+        <div style="border:1px solid var(--line);border-radius:var(--rs);overflow:hidden;margin-top:.8rem">
+          <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr">
+            <div class="rub-head">Criterio</div>
+            <div class="rub-head">✅ Logrado</div>
+            <div class="rub-head">⚠️ En proceso</div>
+            <div class="rub-head">❌ Por mejorar</div>
+          </div>
+          <div class="rub-row">
+            <div class="rub-cell" style="font-weight:600;font-size:.8rem">Relación de conceptos</div>
+            <div class="rub-cell"><span class="badge-g">Conecta conceptos de otras actividades con profundidad.</span></div>
+            <div class="rub-cell"><span class="badge-a">Relación parcial o superficial.</span></div>
+            <div class="rub-cell"><span class="badge-r">No logra conectar conceptos.</span></div>
+          </div>
+          <div class="rub-row">
+            <div class="rub-cell" style="font-weight:600;font-size:.8rem">Diagrama de proceso</div>
+            <div class="rub-cell"><span class="badge-g">Secuencia lógica, clara y diferenciada.</span></div>
+            <div class="rub-cell"><span class="badge-a">Incompleto o confuso.</span></div>
+            <div class="rub-cell"><span class="badge-r">Errores importantes.</span></div>
+          </div>
+          <div class="rub-row">
+            <div class="rub-cell" style="font-weight:600;font-size:.8rem">Uso crítico de IA</div>
+            <div class="rub-cell"><span class="badge-g">Analiza y selecciona con criterio propio.</span></div>
+            <div class="rub-cell"><span class="badge-a">Usa IA sin análisis profundo.</span></div>
+            <div class="rub-cell"><span class="badge-r">Copia sin evaluar.</span></div>
+          </div>
+          <div class="rub-row">
+            <div class="rub-cell" style="font-weight:600;font-size:.8rem">Cuestionario</div>
+            <div class="rub-cell"><span class="badge-g">Preguntas y respuestas técnicas y claras.</span></div>
+            <div class="rub-cell"><span class="badge-a">Preguntas poco profundas.</span></div>
+            <div class="rub-cell"><span class="badge-r">Genéricas o incompletas.</span></div>
+          </div>
+          <div class="rub-row">
+            <div class="rub-cell" style="font-weight:600;font-size:.8rem">Observación en planta</div>
+            <div class="rub-cell"><span class="badge-g">Registros precisos y relevantes.</span></div>
+            <div class="rub-cell"><span class="badge-a">Registros parciales.</span></div>
+            <div class="rub-cell"><span class="badge-r">Falta evidencia.</span></div>
+          </div>
+          <div class="rub-row">
+            <div class="rub-cell" style="font-weight:600;font-size:.8rem">Trabajo grupal</div>
+            <div class="rub-cell"><span class="badge-g">Roles equilibrados y colaboración activa.</span></div>
+            <div class="rub-cell"><span class="badge-a">Participación desigual.</span></div>
+            <div class="rub-cell"><span class="badge-r">Desorganización grupal.</span></div>
+          </div>
+        </div>
+
+        <label class="fl" style="margin-top:1.2rem">Autoevaluación grupal — ¿qué podrían mejorar del trabajo?</label>
+        <textarea data-key="autoevaluacion" placeholder="Sean honestos: ¿qué salió bien? ¿qué harían diferente?" style="min-height:80px"></textarea>
+      </div>
+
+      <div class="card" style="background:var(--green-l);border-color:var(--green-m)">
+        <div class="card-label green">📤 Checklist de entrega — Classroom</div>
+        <div class="delivery-item">Documento colaborativo completo</div>
+        <div class="delivery-item">Captura del diagrama de proceso</div>
+        <div class="delivery-item">Fotografías y evidencias visuales (mín. 4)</div>
+        <div class="delivery-item">Cuestionario con preguntas + respuestas (mín. 8)</div>
+        <div class="delivery-item">Reflexión posterior completa</div>
+        <div class="delivery-item">Captura de interacción con IA</div>
+      </div>
+
+      <div style="text-align:center;padding:1.5rem;background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-bottom:1rem">
+        <div style="font-size:1.8rem;margin-bottom:.5rem">👁️</div>
+        <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;color:var(--ink);margin-bottom:.35rem">La verdadera meta</div>
+        <div style="font-size:.83rem;color:var(--ink2);line-height:1.7">No será solamente "visitar una fábrica".<br>La verdadera meta es <strong>aprender a mirar un sistema tecnológico real<br>con ojos críticos, analíticos y profesionales.</strong></div>
+      </div>
+
+      <!-- ══ BLOQUE EXPORTAR ══ -->
+      <div style="background:linear-gradient(135deg,#0F6E56,#1D9E75);border-radius:var(--r);padding:1.8rem;text-align:center;box-shadow:0 8px 30px rgba(29,158,117,.25)">
+        <div style="font-size:2rem;margin-bottom:.5rem">📤</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:.35rem">¡Actividad completada!</div>
+        <div style="font-size:.83rem;color:rgba(255,255,255,.82);margin-bottom:1.3rem;line-height:1.6">Descargá el archivo con todas las respuestas de tu grupo<br>y subilo como entrega en Google Classroom.</div>
+        <button onclick="exportarTrabajo()" style="display:inline-flex;align-items:center;gap:.55rem;background:#fff;color:var(--green-d);border:none;border-radius:10px;padding:.8rem 2rem;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.15);transition:all .18s" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          ⬇️ Descargar mi trabajo para entregar
+        </button>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.6);margin-top:.9rem">El archivo se descarga con el nombre de tu grupo · Subilo en Classroom como adjunto</div>
+      </div>
+
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="btn-prev" id="btnPrev" onclick="prev()">← Anterior</button>
+    <span class="step-counter" id="stepCtr">Etapa 1 de 7</span>
+    <button class="btn-next" id="btnNext" onclick="next()">Continuar →</button>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+var CUR = 0;
+var TOTAL = 8;
+var GROUP_KEY = null;
+var saveTimer = null;
+
+var STEPS = [
+  "Roles","Etapa 1 · Recursos","Etapa 2 · Diagrama",
+  "Etapa 3 · IA","Etapa 4 · Cuestionario",
+  "Etapa 5 · Observación","Etapa 6 · Reflexión","Rúbrica"
+];
+
+// ══════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════
+function init(){
+  renderSavedGroups();
+  // auto-focus
+  document.getElementById('groupName').focus();
+  document.getElementById('groupName').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('member1').focus()});
+}
+
+function renderSavedGroups(){
+  var keys=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.startsWith('utrasa_')){keys.push(k.replace('utrasa_',''));}
+  }
+  var sec=document.getElementById('savedGroupsSection');
+  var lst=document.getElementById('savedGroupsList');
+  if(keys.length===0){sec.style.display='none';return;}
+  sec.style.display='block';
+  lst.innerHTML='';
+  keys.forEach(function(g){
+    var chip=document.createElement('span');
+    chip.className='group-chip';
+    chip.textContent=g;
+    chip.onclick=function(){
+      document.getElementById('groupName').value=g;
+      loadGroupMembers(g);
+    };
+    lst.appendChild(chip);
+  });
+}
+
+function loadGroupMembers(g){
+  var data=getGroupData(g);
+  if(data&&data._members){
+    var m=data._members;
+    document.getElementById('member1').value=m[0]||'';
+    document.getElementById('member2').value=m[1]||'';
+    document.getElementById('member3').value=m[2]||'';
+    document.getElementById('member4').value=m[3]||'';
+  }
+}
+
+function login(){
+  var g=document.getElementById('groupName').value.trim();
+  var m1=document.getElementById('member1').value.trim();
+  if(!g||!m1){
+    document.getElementById('loginErr').style.display='block';
+    return;
+  }
+  document.getElementById('loginErr').style.display='none';
+  GROUP_KEY='utrasa_'+g;
+
+  // save members
+  var data=getGroupData(g)||{};
+  data._members=[m1,
+    document.getElementById('member2').value.trim(),
+    document.getElementById('member3').value.trim(),
+    document.getElementById('member4').value.trim()
+  ];
+  data._group=g;
+  setGroupData(g,data);
+
+  document.getElementById('topGroupName').textContent=g;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+
+  buildProgressStrip();
+  restoreAll();
+  goTo(data._step||0);
+  showSaved();
+}
+
+function logout(){
+  if(!confirm('¿Querés cambiar de grupo? Tu progreso está guardado.'))return;
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('groupName').value='';
+  document.getElementById('member1').value='';
+  document.getElementById('member2').value='';
+  document.getElementById('member3').value='';
+  document.getElementById('member4').value='';
+  renderSavedGroups();
+  GROUP_KEY=null;
+}
+
+// ══════════════════════════════════════════
+// STORAGE (por grupo, aislado)
+// ══════════════════════════════════════════
+function getGroupData(g){
+  try{
+    var raw=localStorage.getItem('utrasa_'+g);
+    return raw?JSON.parse(raw):null;
+  }catch(e){return null;}
+}
+function setGroupData(g,data){
+  try{localStorage.setItem('utrasa_'+g,JSON.stringify(data));}catch(e){console.warn('Storage full',e);}
+}
+function getCurrentData(){
+  if(!GROUP_KEY)return{};
+  var g=GROUP_KEY.replace('utrasa_','');
+  return getGroupData(g)||{};
+}
+function saveCurrentData(data){
+  if(!GROUP_KEY)return;
+  var g=GROUP_KEY.replace('utrasa_','');
+  setGroupData(g,data);
+}
+
+// ══════════════════════════════════════════
+// AUTOSAVE
+// ══════════════════════════════════════════
+function schedSave(){
+  showSaving();
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){saveAll();},900);
+}
+function saveAll(){
+  if(!GROUP_KEY)return;
+  var data=getCurrentData();
+  // text inputs & textareas
+  document.querySelectorAll('[data-key]').forEach(function(el){
+    if(el.type==='checkbox'){data[el.dataset.key]=el.checked;}
+    else if(el.type==='radio'){}// handled separately
+    else{data[el.dataset.key]=el.value;}
+  });
+  data._step=CUR;
+  saveCurrentData(data);
+  showSaved();
+}
+function saveRadio(el){
+  var data=getCurrentData();
+  data[el.dataset.key]=el.value;
+  saveCurrentData(data);
+  showSaved();
+}
+function showSaving(){
+  var ind=document.getElementById('saveInd');
+  ind.textContent='⏳ Guardando...';ind.className='save-indicator saving';
+}
+function showSaved(){
+  var ind=document.getElementById('saveInd');
+  ind.textContent='💾 Guardado';ind.className='save-indicator saved';
+}
+
+// ══════════════════════════════════════════
+// RESTORE
+// ══════════════════════════════════════════
+function restoreAll(){
+  var data=getCurrentData();
+  document.querySelectorAll('[data-key]').forEach(function(el){
+    var val=data[el.dataset.key];
+    if(val===undefined)return;
+    if(el.type==='checkbox'){el.checked=!!val;}
+    else if(el.type==='radio'){if(el.value===val)el.checked=true;}
+    else{el.value=val||'';}
+  });
+  // restore images
+  ['ig1','ig2','ig3','ig4','ig5','ig6'].forEach(function(id){
+    var imgs=data['_imgs_'+id];
+    if(imgs&&imgs.length){
+      imgs.forEach(function(src){addImgFromSrc(id,src);});
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// IMAGES
+// ══════════════════════════════════════════
+function addImgs(gid,inp){
+  Array.from(inp.files).forEach(function(f){
+    if(f.size>5*1024*1024){alert('La imagen supera 5 MB. Comprimila antes de subir.');return;}
+    var r=new FileReader();
+    r.onload=function(e){
+      addImgFromSrc(gid,e.target.result);
+      saveImgs(gid);
+    };
+    r.readAsDataURL(f);
+  });
+  inp.value='';
+}
+function addImgFromSrc(gid,src){
+  var g=document.getElementById(gid);
+  if(!g)return;
+  var d=document.createElement('div');d.className='img-thumb';
+  var img=document.createElement('img');img.src=src;img.alt='imagen';
+  var btn=document.createElement('button');btn.className='img-del';btn.innerHTML='✕';btn.title='Eliminar';
+  btn.onclick=function(){d.remove();saveImgs(gid);};
+  d.appendChild(img);d.appendChild(btn);g.appendChild(d);
+}
+function saveImgs(gid){
+  var g=document.getElementById(gid);
+  if(!g)return;
+  var srcs=[];
+  g.querySelectorAll('img').forEach(function(img){srcs.push(img.src);});
+  var data=getCurrentData();
+  data['_imgs_'+gid]=srcs;
+  saveCurrentData(data);
+  showSaved();
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function buildProgressStrip(){
+  var strip=document.getElementById('progStrip');
+  strip.innerHTML='';
+  STEPS.forEach(function(s,i){
+    var btn=document.createElement('div');
+    btn.className='prog-step'+(i===CUR?' active':'');
+    btn.id='ps'+i;
+    btn.innerHTML='<div class="prog-dot"></div>'+s;
+    btn.onclick=(function(idx){return function(){goTo(idx);};})(i);
+    strip.appendChild(btn);
+  });
+}
+function goTo(n){
+  saveAll();
+  document.getElementById('et'+CUR).classList.remove('active');
+  var prev=document.getElementById('ps'+CUR);
+  if(prev){prev.classList.remove('active');if(n>CUR)prev.classList.add('done');}
+  CUR=n;
+  document.getElementById('et'+CUR).classList.add('active');
+  var cur=document.getElementById('ps'+CUR);
+  if(cur){cur.classList.remove('done');cur.classList.add('active');}
+  var pct=Math.round((CUR/(TOTAL-1))*100);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('stepCtr').textContent='Etapa '+(CUR+1)+' de '+TOTAL;
+  document.getElementById('btnPrev').disabled=(CUR===0);
+  document.getElementById('btnNext').textContent=(CUR===TOTAL-1)?'¡Listo! ✓':'Continuar →';
+  window.scrollTo({top:0,behavior:'smooth'});
+  // scroll progress strip to active
+  var el=document.getElementById('ps'+CUR);
+  if(el)el.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}
+function next(){if(CUR<TOTAL-1)goTo(CUR+1);}
+function prev(){if(CUR>0)goTo(CUR-1);}
+
+// ══════════════════════════════════════════
+// COPY PROMPT
+// ══════════════════════════════════════════
+function copyPrompt(){
+  var t=document.getElementById('promptTxt').innerText;
+  navigator.clipboard.writeText(t).then(function(){
+    var b=document.querySelector('.copy-btn');
+    var o=b.innerHTML;b.innerHTML='✅ Copiado!';
+    setTimeout(function(){b.innerHTML=o;},2000);
+  }).catch(function(){alert('Copiá el texto manualmente del cuadro.');});
+}
+
+// ══════════════════════════════════════════
+// AUTOSAVE ON INPUT
+// ══════════════════════════════════════════
+document.addEventListener('input',function(e){
+  if(e.target.matches('[data-key]')&&!['checkbox','radio'].includes(e.target.type)){
+    schedSave();
+  }
+});
+
+// ══════════════════════════════════════════
+// EXPORTAR TRABAJO PARA CLASSROOM
+// ══════════════════════════════════════════
+function exportarTrabajo(){
+  saveAll();
+  var data = getCurrentData();
+  var grupo = data._group || 'grupo';
+  var members = (data._members||[]).filter(Boolean).join(', ');
+
+  // Recopilar todas las imágenes guardadas
+  var imgSections = {
+    'ig1': 'Recursos / Insumos',
+    'ig2': 'Trabajo manual y mecanizado',
+    'ig3': 'Sustentabilidad y cooperativismo',
+    'ig4': 'Diagrama de proceso',
+    'ig5': 'Interacción con IA',
+    'ig6': 'Fotos de la visita'
+  };
+
+  function val(k){ return (data[k]||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+  function chk(k){ return data[k] ? '✅' : '☐'; }
+  function sec(title, color){ return '<div style="background:'+color+';color:#fff;padding:.6rem 1rem;border-radius:8px 8px 0 0;font-family:Arial,sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-top:1.4rem">'+title+'</div><div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:1rem;margin-bottom:.5rem">'; }
+  function field(label, value){ return '<div style="margin-bottom:.8rem"><div style="font-size:.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:.25rem">'+label+'</div><div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:.55rem .8rem;font-size:.88rem;color:#1c1c1e;min-height:2rem;line-height:1.6">'+(value||'<span style="color:#9ca3af;font-style:italic">Sin respuesta</span>')+'</div></div>'; }
+  function imgBlock(gid, label){
+    var imgs = data['_imgs_'+gid];
+    if(!imgs||!imgs.length) return '<div style="font-size:.8rem;color:#9ca3af;font-style:italic;margin-bottom:.8rem">'+label+': sin imágenes adjuntas</div>';
+    var out = '<div style="margin-bottom:.8rem"><div style="font-size:.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem">'+label+'</div><div style="display:flex;flex-wrap:wrap;gap:.4rem">';
+    imgs.forEach(function(src){ out += '<img src="'+src+'" style="width:120px;height:120px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb">'; });
+    out += '</div></div>';
+    return out;
+  }
+
+  var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trabajo Práctico Final — '+grupo+'</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:14px;background:#f2f2f7;color:#1c1c1e;padding:1.5rem}h1{font-family:Arial,sans-serif}@media print{body{background:#fff;padding:.5rem}}</style></head><body>';
+
+  // PORTADA
+  html += '<div style="background:linear-gradient(135deg,#0F6E56,#1D9E75);color:#fff;border-radius:12px;padding:2rem;text-align:center;margin-bottom:1.5rem">';
+  html += '<div style="font-size:.75rem;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:.3rem">Educación Tecnológica · 2° Año · Saint Patrick College</div>';
+  html += '<h1 style="font-size:1.6rem;font-weight:800;margin-bottom:.3rem">Trabajo Práctico Final — Visita Técnica a UTRASA</h1>';
+  html += '<div style="font-size:.88rem;opacity:.85;margin-bottom:.8rem">Análisis del Sistema Productivo Industrial y Modelo Cooperativo</div>';
+  html += '<div style="display:inline-block;background:rgba(255,255,255,.15);border-radius:8px;padding:.5rem 1.2rem;font-size:.85rem"><strong>Grupo:</strong> '+grupo+' &nbsp;|&nbsp; <strong>Integrantes:</strong> '+members+'</div>';
+  html += '<div style="margin-top:.6rem;font-size:.75rem;opacity:.6">Exportado el '+new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'})+' a las '+new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})+'</div>';
+  html += '</div>';
+
+  // ROLES
+  html += sec('Roles del equipo','#1D9E75');
+  html += field('Director/a de Producción', val('rol_director'));
+  html += field('Gestor/a de Recursos', val('rol_gestor'));
+  html += field('Especialista en IA', val('rol_ia'));
+  html += field('Responsable de Calidad', val('rol_calidad'));
+  html += '</div>';
+
+  // ETAPA 1
+  html += sec('Etapa 1 — Recursos Productivos y Observaciones','#2563EB');
+  html += field('Materia Prima observada', val('rec_materia'));
+  html += field('Energía observada', val('rec_energia'));
+  html += field('Información / Diseño', val('rec_info'));
+  html += field('Capital / Maquinaria', val('rec_capital'));
+  html += field('Producción Industrial y Trabajo Humano', val('trabajo_humano'));
+  html += field('Sustentabilidad y Cooperativismo', val('sustentabilidad'));
+  html += imgBlock('ig1','Fotos de recursos/insumos');
+  html += imgBlock('ig2','Fotos trabajo manual y mecanizado');
+  html += imgBlock('ig3','Fotos sustentabilidad y cooperativa');
+  html += '</div>';
+
+  // ETAPA 2
+  html += sec('Etapa 2 — Diagrama del Proceso Productivo','#7C3AED');
+  var etapas = [
+    ['diag_recepcion','Recepción de insumos'],
+    ['diag_corte','Corte de piezas'],
+    ['diag_aparado','Aparado — costura / unión'],
+    ['diag_inyeccion','Inyección o pegado de suela'],
+    ['diag_ensamblaje','Ensamblaje'],
+    ['diag_calidad','Control de calidad'],
+    ['diag_empaque','Empaque'],
+    ['diag_distribucion','Distribución'],
+  ];
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.8rem">';
+  etapas.forEach(function(e){ html += '<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:.35rem .7rem;font-size:.82rem">'+chk(e[0])+' '+e[1]+'</div>'; });
+  html += '</div>';
+  html += field('Notas sobre el diagrama', val('diag_notas'));
+  html += imgBlock('ig4','Captura del diagrama');
+  html += '</div>';
+
+  // ETAPA 3
+  html += sec('Etapa 3 — Uso de IA como Consultor Tecnológico','#D97706');
+  html += field('Respuesta completa de la IA', val('ia_respuesta'));
+  html += field('Pregunta elegida N°1', val('ia_q1'));
+  html += field('¿Por qué la eligieron?', val('ia_q1_why'));
+  html += field('Pregunta elegida N°2', val('ia_q2'));
+  html += field('¿Por qué la eligieron?', val('ia_q2_why'));
+  html += field('Pregunta elegida N°3', val('ia_q3'));
+  html += field('¿Por qué la eligieron?', val('ia_q3_why'));
+  html += field('Conclusión sobre el uso de IA', val('ia_conclusion'));
+  html += imgBlock('ig5','Captura de interacción con IA');
+  html += '</div>';
+
+  // ETAPA 4
+  html += sec('Etapa 4 — Cuestionario Final (Preguntas + Respuestas)','#0369A1');
+  var bloques = [
+    {label:'Bloque A — Recursos y Cadena Tecnológica', qs:['a1','a2','a3']},
+    {label:'Bloque B — Modelo Socio-Productivo', qs:['b1','b2','b3']},
+    {label:'Bloque C — Sustentabilidad y Futuro', qs:['c1','c2','c3']},
+  ];
+  bloques.forEach(function(b){
+    html += '<div style="font-size:.78rem;font-weight:700;color:#0369A1;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;margin-top:.6rem">'+b.label+'</div>';
+    b.qs.forEach(function(q,i){
+      html += field('Pregunta '+b.qs[i].toUpperCase(), val('cq_'+q));
+      html += field('Respuesta obtenida', val('cq_'+q+'r'));
+    });
+  });
+  html += '</div>';
+
+  // ETAPA 5
+  html += sec('Etapa 5 — Registro de Observación en Planta','#DC2626');
+  html += field('Etapa con gran intervención humana', val('obs_humana'));
+  html += field('Etapa altamente mecanizada', val('obs_maquina'));
+  html += field('Medida de seguridad industrial', val('obs_seguridad'));
+  html += field('Posible desperdicio del proceso', val('obs_desperdicio'));
+  html += field('Acción sustentable observada', val('obs_sustentable'));
+  html += field('Decisión organizativa cooperativa', val('obs_cooperativa'));
+  html += field('Descripción del boceto', val('obs_boceto'));
+  html += imgBlock('ig6','Fotografías de la visita');
+  html += '</div>';
+
+  // ETAPA 6
+  html += sec('Etapa 6 — Reflexión Final','#3B6D11');
+  html += '<table style="width:100%;border-collapse:collapse;font-size:.83rem;margin-bottom:.8rem">';
+  html += '<thead><tr><th style="background:#EAF3DE;color:#3B6D11;padding:.45rem .7rem;border:1px solid #d1d5db;text-align:left">Hipótesis previa</th><th style="background:#EAF3DE;color:#3B6D11;padding:.45rem .7rem;border:1px solid #d1d5db;text-align:left">Lo observado</th><th style="background:#EAF3DE;color:#3B6D11;padding:.45rem .7rem;border:1px solid #d1d5db;text-align:left">¿Qué aprendimos?</th></tr></thead><tbody>';
+  [1,2,3].forEach(function(n){
+    html += '<tr><td style="padding:.45rem .7rem;border:1px solid #d1d5db;vertical-align:top">'+(val('ref_hip'+n)||'—')+'</td><td style="padding:.45rem .7rem;border:1px solid #d1d5db;vertical-align:top">'+(val('ref_obs'+n)||'—')+'</td><td style="padding:.45rem .7rem;border:1px solid #d1d5db;vertical-align:top">'+(val('ref_apr'+n)||'—')+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  html += field('Lo más interesante del sistema productivo', val('con_interesante'));
+  html += field('¿Qué los sorprendió más?', val('con_sorpresa'));
+  html += field('Influencia en la economía regional', val('con_economia'));
+  html += field('¿Qué cambiarían o mejorarían?', val('con_mejora'));
+  html += field('Autoevaluación grupal', val('autoevaluacion'));
+  html += '</div>';
+
+  // PIE
+  html += '<div style="text-align:center;padding:1.2rem;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin-top:1rem;font-size:.78rem;color:#6b7280">';
+  html += 'Trabajo Práctico Final · Visita Técnica UTRASA · Educación Tecnológica · Prof. Patricia González · Saint Patrick College';
+  html += '</div>';
+  html += '</body></html>';
+
+  // DESCARGAR
+  var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'UTRASA_TPFinal_' + grupo.replace(/\s+/g,'_') + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
